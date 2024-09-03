@@ -13,8 +13,14 @@
 #include "linkedSequence.h"
 #include "utils.h"
 
+void output_performance(std::chrono::time_point<std::chrono::high_resolution_clock>& start) {
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duration = end - start;
+    std::cout << "Program elapsed time: " << duration.count() << " ms" << std::endl;
+}
+
 // code for running gen mutation with LinekedSequence
-int gen_mutation(int argc, char* argv[]) {
+int gen_mutation(int argc, char* argv[], std::chrono::time_point<std::chrono::high_resolution_clock>& start) {
 
     /*---------------command line parsing----------*/
 
@@ -25,7 +31,11 @@ int gen_mutation(int argc, char* argv[]) {
     }
     /*---------------input files parsing----------*/
     // parse input fasta
+    std::cout << "Start Parsing input fasta" << std::endl;
     std::vector<Sequence*> sequences = parse_data(argv[1]);
+    std::cout << "Complete Parsing input fasta" << std::endl;
+    output_performance(start);
+
     std::vector<LinkedSequence*> linkedseqs = init_vector_LinkedSequence(sequences);
 
     /*---------------Add mutations----------*/
@@ -36,10 +46,10 @@ int gen_mutation(int argc, char* argv[]) {
     std::ofstream mut_record = init_mutation_record(argv[1]);
 
     // set avg mutation rate, this determines the probability of each mutation
-    double avg_mut_rate_SV = 0.1;
-    double avg_mut_rate_CNV = 0.1;
-    double avg_mut_rate_INDEL = 0.1;
-    double avg_mut_rate_SNP = 0.1;
+    double avg_mut_rate_SV = 0.01;
+    double avg_mut_rate_CNV = 0.01;
+    double avg_mut_rate_INDEL = 0.01;
+    double avg_mut_rate_SNP = 0.02;
     
     // start from large scale mutation to smaller
     // SV -> CNV -> indel -> SNP
@@ -54,10 +64,13 @@ int gen_mutation(int argc, char* argv[]) {
     /*----------INDEL----------*/
     // indel probability, 0 index must be 0.0 (no point ins/del 0 base pairs)
     // does NOT need to sum to 1
-    std::vector<double> ins_prob = {0.0, 0.3, 0.2, 0.2, 0.05, 0.05};
-    std::vector<double> del_prob = {0.0, 0.5, 0.2, 0.2, 0.05, 0.05};
+    std::vector<double> ins_prob = {0.0, 20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1};
+    std::vector<double> del_prob = {0.0, 20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1};
     // call indel mutation
+    std::cout << "Start simulate INDEL" << std::endl;
     gen_INDEL(linkedseqs, mut_record, ins_prob, del_prob, avg_mut_rate_INDEL, gen);
+    std::cout << "Complete simulate INDEL" << std::endl;
+    output_performance(start);
 
     /*----------SNP----------*/
     // snp probabilities
@@ -66,10 +79,16 @@ int gen_mutation(int argc, char* argv[]) {
         snp_prob[i][i] = 0.0;  // can't mut to itself
     }
     // call snp mutation
+    std::cout << "Start simulate SNP" << std::endl;
     gen_SNP(sequences, mut_record, snp_prob, avg_mut_rate_SNP, gen);
+    std::cout << "Complete simulate SNP" << std::endl;
+    output_performance(start);
 
     /*---------------Output mutated reference----------*/
+    std::cout << "Start writing to output" << std::endl;
     write_mutated_ref(argv[1], linkedseqs);
+    std::cout << "Complete writing to output" << std::endl;
+    output_performance(start);
 
     // clean up
     mut_record.close();
@@ -84,13 +103,8 @@ int main(int argc, char *argv[]) {
     auto start = std::chrono::high_resolution_clock::now();
 
     // CALL CHOICE OF MAIN HERE
-    gen_mutation(argc, argv);
+    gen_mutation(argc, argv, start);
 
-    /*---------------Performance----------*/
-    auto end = std::chrono::high_resolution_clock::now();
-
-    std::chrono::duration<double, std::milli> duration = end - start;
-
-    std::cout << "Program elapsed time: " << duration.count() << " ms" << std::endl;
+    output_performance(start);
     return EXIT_SUCCESS;
 }

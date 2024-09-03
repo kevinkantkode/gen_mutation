@@ -5,8 +5,8 @@ This project is still considered incomplete, while it can successfully run and o
 it is still lacking 2 major types of mutation, CNV and SV.
 
 to run, first install all the files onto your local linux enviorment, then enter
->>> make
->>> ./gen_mutation <fasta file>
+>> make
+>> ./gen_mutation <fasta file>
 
 this version will output the mutated fast file to <mut_fasta> with '->' representing the connection between
 segments, this can be turned off via removing the 'true' argument for the to_string_all method

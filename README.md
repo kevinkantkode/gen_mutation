@@ -11,7 +11,7 @@ $ make
 
 $ ./gen_mutation <fasta>
 
-this version will output the mutated fast file to <mut_fasta> with '->' representing the connection between segments, this can be turned off via removing the 'true' argument for the to_string_all method of write_mutated_ref in linkedSequence.cc
+this version will output the mutated fasta file to <mut_fasta> with '->' representing the connection between segments, this can be turned off via removing the 'true' argument for the to_string_all method of write_mutated_ref in linkedSequence.cc
 
 all mutations will be documented in "mutation_record" file, note the pos value is 0-index based, adjust if desire 1-index based
 
